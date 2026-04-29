@@ -53,3 +53,14 @@ def test_upload_accepts_supported_extension_and_content_type() -> None:
 
     assert response.status_code == 200
     assert response.json() == {"filename": "photo.png"}
+
+
+def test_upload_rejects_file_larger_than_2mb() -> None:
+    too_large = b"a" * (2 * 1024 * 1024 + 1)
+    response = client.post(
+        "/upload",
+        files={"file": ("large.png", too_large, "image/png")},
+    )
+
+    assert response.status_code == 413
+    assert response.json() == {"error": "File exceeds 2 MB size limit."}
